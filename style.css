@@ -1,0 +1,44 @@
+#malla-container {
+    display: grid;
+    grid-template-columns: repeat(10, 1fr);
+    
+    gap: 10px;
+    padding: 20px;
+
+    min-width: 1000px;
+    overflow-x: auto;
+}
+
+.semestre-column {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+
+    background-color: white; 
+    padding: 5px;
+    border-radius: 5px;
+}
+
+.semestre-title {
+    text-align: center;
+    font-weight: bold;
+    margin-bottom: 5px;
+    background-color: #333;
+    color: white;
+    padding: 5px;
+}
+
+.ramo {
+    background-color: white;
+    border: 1px solid #ccc;
+    padding: 10px;
+    text-align: center;
+    border-radius: 4px;
+    min-height: 60px;
+
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 0.8rem;
+    box-shadow: 2px 2px 5px rgba(0,0,0,0.1);
+}

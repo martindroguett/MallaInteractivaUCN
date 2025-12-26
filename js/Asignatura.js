@@ -4,6 +4,8 @@ export class Asignatura{
         this.nombre = nombre;
         this.creditos = creditos;
         this.prerrequisitos = prerrequisitos;
+        this.semestre = 0;
         this.aprobado = false;
+
     }
 }
