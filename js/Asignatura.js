@@ -6,6 +6,11 @@ export class Asignatura{
         this.prerrequisitos = prerrequisitos;
         this.semestre = 0;
         this.aprobado = false;
+        this.disponible = false;
+        this.desbloquea = [];
 
+        if (prerrequisitos.length == 0) {
+            this.disponible = true;
+        }
     }
 }

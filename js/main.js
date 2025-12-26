@@ -1,7 +1,10 @@
 import { Asignatura } from "../js/asignatura.js";
 
+let minSemestre = 1;
+
 function procesarJSON(json) {
     const ramos = [];
+    const map = {};
     
     for (const [sem, ramosSemestre] of Object.entries(json)) {
         ramosSemestre.forEach(ramoData => { 
@@ -9,9 +12,17 @@ function procesarJSON(json) {
             const asignatura = new Asignatura(id, nombre, creditos, prerrequisitos);
             asignatura.semestre = parseInt(sem.replace("s", ""));
             ramos.push(asignatura);
+
+            map[id] = asignatura;
+
+
+            prerrequisitos.forEach(idRequisito => { 
+                map[idRequisito].desbloquea.push(id);
+            });
+
         });
     }
-    return ramos;
+    return { listaRamos: ramos, map: map };
 }
 
 function romano(n) {
@@ -36,12 +47,12 @@ function dibujarMalla(datosAgrupados) { //Añade los elementos al grid de la mal
     contenedor.innerHTML = ''; //Limpia CSS
 
     const totalSemestres = datosAgrupados.length;
-    contenedor.style.gridTemplateColumns = `repeat(${totalSemestres}, 1fr)`; //Varía según la cantidad de semestres
 
     datosAgrupados.forEach((ramosSemestre, index) => {
         
         const columna = document.createElement('div');
         columna.className = 'semestre-column'; //Columnas
+        columna.style.width = `${100 / totalSemestres}%`; //Ajusta el tamaño de la columna según la cantidad de ramos
 
         const titulo = document.createElement('div');
         titulo.className = 'semestre-title';
@@ -49,22 +60,30 @@ function dibujarMalla(datosAgrupados) { //Añade los elementos al grid de la mal
         columna.appendChild(titulo); //Título
 
         ramosSemestre.forEach(ramo => {
-            const tarjeta = document.createElement('div');
-            tarjeta.className = 'ramo';
-            tarjeta.textContent = ramo.nombre;
-            
-            tarjeta.dataset.id = ramo.id; 
+            const cuadro = document.createElement('div');
+            cuadro.className = 'ramo';
+            cuadro.textContent = ramo.nombre;
 
-            columna.appendChild(tarjeta);
+            if (index+1 == totalSemestres) {
+                cuadro.style.minHeight = '610px'; 
+            }
+
+            if (ramo.disponible && minSemestre + 2 >= ramo.semestre) {
+                cuadro.classList.toggle('disponible');
+            }
+
+            cuadro.dataset.id = ramo.id; //Para detectar que ramo se selecciona
+
+            columna.appendChild(cuadro);
         }); //Ramos
 
         contenedor.appendChild(columna); //Lo agrega todo al grid
     });
 }
 
-function agruparPorSemestres(listaPlana) { //Obtiene el semestre y crea una lista por cada uno, donde se agregan los ramos
+function agruparPorSemestres(lista) { //Obtiene el semestre y crea una lista por cada uno, donde se agregan los ramos
     const mallasPorSemestre = [];
-    listaPlana.forEach(ramo => {
+    lista.forEach(ramo => {
         const indice = ramo.semestre - 1; 
         if (!mallasPorSemestre[indice]) {
             mallasPorSemestre[indice] = [];
@@ -72,6 +91,66 @@ function agruparPorSemestres(listaPlana) { //Obtiene el semestre y crea una list
         mallasPorSemestre[indice].push(ramo);
     });
     return mallasPorSemestre;
+}
+
+function activarEventos(map) {
+    document.getElementById('malla-container').addEventListener('click', (event) => {
+        const ramo = event.target.closest('.ramo');
+        if (!ramo) return;
+
+        const id = ramo.dataset.id;
+        console.log(`Ramo seleccionado: ${id}`);
+
+        const ramoObj = map[id];
+
+        ramoObj.aprobado = !ramoObj.aprobado;
+
+        ramo.classList.remove('disponible');
+        ramo.classList.toggle('aprobado');
+
+        console.log(`Estado de ${ramoObj.nombre}: Aprobado = ${ramoObj.aprobado}`);
+
+        minSemestre = Math.min(...Object.values(map).filter(r => !r.aprobado).map(r => r.semestre)); //Se determina el semestre mínimo no aprobado
+        console.log(`Mínimo semestre no aprobado: ${minSemestre}`);
+
+        Object.values(map).filter(r => r.prerrequisitos.length == 0 || r.prerrequisitos.every(prereqId => map[prereqId].aprobado)).forEach(r => { //Revisa los ramos que no tienen prerrequisitos o que todos sus prerrequisitos están aprobados
+            if (!r.aprobado && minSemestre + 2 >= r.semestre) {
+                r.disponible = true;
+                const ramoLibre = document.querySelector(`.ramo[data-id='${r.id}']`);
+                ramoLibre.classList.add('disponible');
+            } else {
+                r.disponible = false;
+                const ramoLibre = document.querySelector(`.ramo[data-id='${r.id}']`);
+                ramoLibre.classList.remove('disponible');
+            }
+        });
+
+        if (ramoObj.aprobado) { //Si está aprobado revisa que desbloquea
+            ramoObj.desbloquea.forEach(idDesbloqueado => {
+                const ramoCandidatoObj = map[idDesbloqueado];
+                if (!ramoCandidatoObj.aprobado && ramoCandidatoObj.prerrequisitos.every(prereqId => map[prereqId].aprobado) && minSemestre + 2 >= ramoCandidatoObj.semestre) {
+                    ramoCandidatoObj.disponible = true;
+                    const ramoCandidato = document.querySelector(`.ramo[data-id='${idDesbloqueado}']`);
+                    ramoCandidato.classList.add('disponible');
+                    console.log(`Ramo desbloqueado: ${ramoCandidatoObj.nombre}`);
+                }
+            });
+        } else { //Si no está aprobado revisa que ramos se bloquean y si está disponible
+            for (const ramoCandidatoObj of Object.values(map)) {
+                if (ramoCandidatoObj.prerrequisitos.includes(id)) {
+                    ramoCandidatoObj.disponible = false;
+                    const ramoCandidato = document.querySelector(`.ramo[data-id='${ramoCandidatoObj.id}']`);
+                    ramoCandidato.classList.remove('disponible');
+                }
+            }
+
+            if (ramoObj.prerrequisitos.every(prereqId => map[prereqId].aprobado) && minSemestre + 2 >= ramoObj.semestre) {
+                ramoObj.disponible = true;
+                ramo.classList.add('disponible');
+            }
+        }
+
+    });
 }
 
 async function iniciarApp() {
@@ -85,7 +164,9 @@ async function iniciarApp() {
 
         const json = await response.json();
 
-        const listaRamos = procesarJSON(json);
+        const {listaRamos, map} = procesarJSON(json);
+
+        activarEventos(map);
 
         const datosAgrupados = agruparPorSemestres(listaRamos);
 

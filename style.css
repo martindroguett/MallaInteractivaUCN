@@ -1,9 +1,10 @@
 #malla-container {
-    display: grid;
-    grid-template-columns: repeat(10, 1fr);
-    
+    display: flex;
+    flex-direction: row;
     gap: 10px;
     padding: 20px;
+
+    justify-content: center;
 
     min-width: 1000px;
     overflow-x: auto;
@@ -13,6 +14,8 @@
     display: flex;
     flex-direction: column;
     gap: 10px;
+
+    width: 10%;
 
     background-color: white; 
     padding: 5px;
@@ -41,4 +44,20 @@
     align-items: center;
     font-size: 0.8rem;
     box-shadow: 2px 2px 5px rgba(0,0,0,0.1);
+}
+
+.ramo.aprobado {
+    background-color: #4CAF50; 
+    border-color: #2E7D32;
+}
+
+.ramo.disponible {
+    background-color: #FFEB3B;
+    border-color: #FBC02D;
+}
+
+.ramo:hover {
+    cursor: pointer;
+    transform: scale(1.02);
+    transition: 0.1s;
 }
