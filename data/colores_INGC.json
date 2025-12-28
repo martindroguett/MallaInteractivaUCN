@@ -1,0 +1,9 @@
+{
+"DCCB":["#FF9933","Departamento de Ciencias Básicas"],
+"SSED":["#FF6666","Escuela de Educación"],
+"DCTE":["#CC00CC","Departamento de Teología"],
+"ECIN":["#9999FF","Escuela de Ingeniería"],
+"UNFE":["#99FFFF","Formación Electiva"],
+"UNFP":["#009999","Formación Profesional"],
+"UNFV":["#CCE5FF","Formación Voluntaria"]
+}

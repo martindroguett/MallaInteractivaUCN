@@ -24,7 +24,15 @@ function procesarJSON(json) {
     }
     return { listaRamos: ramos, map: map };
 }
-
+function cargarColoresFacultades(listaRamos,json){
+    for(const ramo of listaRamos){
+        const siglaFacu = ramo.id.split("-")[0];
+        if(json[siglaFacu]){
+            ramo.color=json[siglaFacu][0];
+            ramo.facultad=json[siglaFacu][1];
+        }
+    }
+}
 function romano(n) {
     switch (n) {
         case 1: return 'I';
@@ -59,14 +67,17 @@ function dibujarMalla(datosAgrupados) { //Añade los elementos al grid de la mal
         titulo.textContent = romano(index + 1);
         columna.appendChild(titulo); //Título
 
+
+
         ramosSemestre.forEach(ramo => {
             const cuadro = document.createElement('div');
+            cuadro.style.backgroundColor=ramo.color; //se establece su color
             cuadro.className = 'ramo';
             cuadro.textContent = ramo.nombre;
-
             if (index+1 == totalSemestres) {
                 cuadro.style.minHeight = '610px'; 
             }
+
 
             if (ramo.disponible && minSemestre + 2 >= ramo.semestre) {
                 cuadro.classList.toggle('disponible');
@@ -80,7 +91,23 @@ function dibujarMalla(datosAgrupados) { //Añade los elementos al grid de la mal
         contenedor.appendChild(columna); //Lo agrega todo al grid
     });
 }
+function dibujarLeyenda(jsColor){
+    const leyenda = document.getElementById('leyenda');
+    leyenda.innerHTML='';
+    
+    for(const[sigla,datos] of Object.entries(jsColor)){
+        const col = datos[0];
+        const facu = datos[1];
+        const item = document.createElement('div');
+        item.className = 'leyenda-item';
+        item.innerHTML = `
+            <span class="punto-color" style="background-color: ${col}"></span>
+            <span class="nombre-facultad"><strong>${sigla}:</strong> ${facu}</span>
+        `;
+        leyenda.append(item);
+    }
 
+}
 function agruparPorSemestres(lista) { //Obtiene el semestre y crea una lista por cada uno, donde se agregan los ramos
     const mallasPorSemestre = [];
     lista.forEach(ramo => {
@@ -102,11 +129,16 @@ function activarEventos(map) {
         console.log(`Ramo seleccionado: ${id}`);
 
         const ramoObj = map[id];
-
-        ramoObj.aprobado = !ramoObj.aprobado;
-
-        ramo.classList.remove('disponible');
-        ramo.classList.toggle('aprobado');
+        if(ramoObj.disponible){
+            ramo.classList.add('aprobado');
+            ramoObj.aprobado = !ramoObj.aprobado;   
+            ramoObj.disponible = !ramoObj.disponible;
+        } else if(ramoObj.aprobado){
+            ramo.classList.remove('aprobado');
+            ramoObj.aprobado = !ramoObj.aprobado;
+            ramoObj.disponible = !ramoObj.disponible;
+        }
+        
 
         console.log(`Estado de ${ramoObj.nombre}: Aprobado = ${ramoObj.aprobado}`);
 
@@ -156,15 +188,18 @@ function activarEventos(map) {
 async function iniciarApp() {
     try {
 
-        const response = await fetch('../data/data_ICCI.json'); 
-        
-        if (!response.ok) {
+        const [malla,colores] = await Promise.all([fetch('../data/data_ICCI.json'),
+            fetch("../data/colores_INGC.json")]); 
+        if (!malla.ok || !colores.ok) {
             throw new Error("No se pudo encontrar el archivo JSON");
         }
 
-        const json = await response.json();
+        const jsMalla = await malla.json();
+        const jsColor = await colores.json();
 
-        const {listaRamos, map} = procesarJSON(json);
+        const {listaRamos, map} = procesarJSON(jsMalla);
+        cargarColoresFacultades(listaRamos,jsColor);
+        dibujarLeyenda(jsColor);
 
         activarEventos(map);
 

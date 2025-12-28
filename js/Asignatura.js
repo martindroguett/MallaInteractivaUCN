@@ -8,6 +8,8 @@ export class Asignatura{
         this.aprobado = false;
         this.disponible = false;
         this.desbloquea = [];
+        this.color="#ccc";
+        this.facultad = "";
 
         if (prerrequisitos.length == 0) {
             this.disponible = true;

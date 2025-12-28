@@ -32,8 +32,9 @@
 }
 
 .ramo {
-    background-color: white;
-    border: 1px solid #ccc;
+    opacity: 0.4; 
+    transition: all 0.3s ease;
+    border: 10px solid #ccc;
     padding: 10px;
     text-align: center;
     border-radius: 4px;
@@ -45,19 +46,43 @@
     font-size: 0.8rem;
     box-shadow: 2px 2px 5px rgba(0,0,0,0.1);
 }
-
-.ramo.aprobado {
-    background-color: #4CAF50; 
-    border-color: #2E7D32;
+.ramo.disponible{
+    opacity: 1;
+    cursor: pointer;
 }
-
-.ramo.disponible {
-    background-color: #FFEB3B;
-    border-color: #FBC02D;
+.ramo.aprobado {
+    opacity: 1;
+    background-color: #4CAF50 !important;
+    border-color: #2E7D32;
+    cursor: pointer;
 }
 
 .ramo:hover {
-    cursor: pointer;
+   
     transform: scale(1.02);
     transition: 0.1s;
+}
+
+#leyenda {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 15px;
+    margin-top: 30px;
+    padding: 20px;
+    background-color: #f9f9f9;
+    border-radius: 8px;
+}
+
+.leyenda-item {
+    display: flex;
+    align-items: center;
+    font-size: 0.9rem;
+}
+
+.punto-color {
+    width: 15px;
+    height: 15px;
+    border-radius: 3px; 
+    margin-right: 8px;
+    border: 1px solid rgba(0,0,0,0.1);
 }
