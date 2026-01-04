@@ -5,10 +5,22 @@
     <title>Malla Interactiva UCN</title>
     <link rel="stylesheet" href="css/style.css">
 </head>
-<body>
-    <h1>Mi malla</h1>
+<body style="background-color: dodgerblue;">
+    <div id="titulo-container">
+        <h1>
+        <span class="titulo">MALLA DE INGENIERÍA CIVIL EN COMPUTACIÓN E INFORMÁTICA</span>
+        </h1>
+    </div>
 
     <div id="malla-container"></div>
+
+    <div id="ramo-popup" class="info-card oculto">
+    <h3><span id="nombreramo"></span></h3>
+    <p><strong>Código:</strong> <span id="info-id"></span></p>
+    <p><strong>SCT:</strong> <span id="info-sct"></span></p>
+    <p><strong>Prerrequisitos:</strong> <ul id="info-pre"></ul></p>
+    </div>
+
     <div id="leyenda"></div>
     <script type="module" src="../js/main.js"></script> 
 </body>

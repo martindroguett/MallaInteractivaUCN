@@ -183,6 +183,49 @@ function activarEventos(map) {
         }
 
     });
+    document.getElementById('malla-container').addEventListener('mouseover', (event2) =>{
+        const ramo = event2.target.closest('.ramo');
+        const id = ramo.dataset.id;
+        const ramoObj = map[id];
+
+        const ventana = document.getElementById("ramo-popup");
+        if (!ramo){  
+            document.getElementById('info-pre').textContent='';
+            ventana.classList.add('oculto');
+            return;    
+        }
+        const nom = ramoObj.nombre;
+        const sct = ramoObj.creditos;
+
+        document.getElementById('nombreramo').textContent=nom;
+        document.getElementById('info-id').textContent=id;
+        document.getElementById('info-sct').textContent=sct;
+
+        const req = ramoObj.prerrequisitos;
+        let listaPre = document.getElementById('info-pre');
+        listaPre.innerHTML='';
+        if(req.length==0){
+            listaPre.innerHTML='Ninguno';
+        } else {
+            req.forEach(idRequisito => { 
+            let prer = map[idRequisito].nombre;
+            let vineta = document.createElement('li');
+            vineta.innerText=prer;
+            listaPre.appendChild(vineta);
+        });
+        }
+
+        ventana.classList.remove('oculto');
+
+        console.log(`Ramo visto: ${id}`);
+
+
+    });
+    document.getElementById('malla-container').addEventListener('mouseleave', (event3) =>{
+        document.getElementById('info-pre').textContent='';
+        const ventana = document.getElementById("ramo-popup");
+        ventana.classList.add('oculto');
+    })
 }
 
 async function iniciarApp() {
