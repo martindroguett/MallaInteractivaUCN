@@ -120,6 +120,14 @@ function agruparPorSemestres(lista) { //Obtiene el semestre y crea una lista por
     return mallasPorSemestre;
 }
 
+function mallaLoAntesPosible(maxCreditos, listaRamos){
+    let porAprobar = listaRamos.filter(ramo => !ramo.aprobado);
+
+    //backtracking
+        
+
+}
+
 function activarEventos(map) {
     document.getElementById('malla-container').addEventListener('click', (event) => {
         const ramo = event.target.closest('.ramo');
@@ -225,7 +233,14 @@ function activarEventos(map) {
         document.getElementById('info-pre').textContent='';
         const ventana = document.getElementById("ramo-popup");
         ventana.classList.add('oculto');
-    })
+    });
+
+    document.getElementById('simulador').addEventListener('click', () => {
+        console.log("Redirigiendo al simulador de malla...");
+        const ventana = document.getElementById("simulador-popup");
+        ventana.classList.remove('oculto');
+    });
+
 }
 
 async function iniciarApp() {

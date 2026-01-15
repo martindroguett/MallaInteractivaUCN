@@ -6,10 +6,24 @@
     background-color: dodgerblue;
    
 }
-.titulo{
+.titulo {
     color: white;
     font-family: Montserrat;
     font-weight: 700;
+}
+
+.button {
+    background-color: gray;
+    color: white;
+    border: none;
+    padding: 5px 10px;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 16px;
+    margin: 4px 2px;
+    cursor: pointer;
+    border-radius: 8px;
 }
 
 #malla-container {
@@ -40,6 +54,22 @@
     box-shadow: 0 4px 15px rgba(0,0,0,0.2);
     z-index: 1000;
     transition: opacity 0,3s ease;
+}
+
+.simulador-popup {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 50%;
+    height: 50%;
+    background: white;
+    border: 2px solid #333;
+    padding: 10px;
+    border-radius: 8px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+    z-index: 1000;
+    transition: opacity 0.3s ease; 
 }
 
 .oculto {
