@@ -120,9 +120,23 @@ function agruparPorSemestres(lista) { //Obtiene el semestre y crea una lista por
     return mallasPorSemestre;
 }
 
+function calcularPeso(ramo, map) {
+    let max = 0;
+    for(let requisito of ramo.desbloquea) {
+        let aux = calcularPeso(map[requisito], map);
+        if (aux > max) {
+            max = aux;
+        }
+    }
+    return 1 + max;
+}
+
 function mallaLoAntesPosible(maxCreditos, listaRamos){
     let porAprobar = listaRamos.filter(ramo => !ramo.aprobado);
 
+    let mejor = []
+
+    
     //backtracking
         
 
@@ -204,10 +218,12 @@ function activarEventos(map) {
         }
         const nom = ramoObj.nombre;
         const sct = ramoObj.creditos;
+        const fuerza = calcularPeso(ramoObj, map);
 
         document.getElementById('nombreramo').textContent=nom;
         document.getElementById('info-id').textContent=id;
         document.getElementById('info-sct').textContent=sct;
+        document.getElementById('info-fuerza').textContent=fuerza;
 
         const req = ramoObj.prerrequisitos;
         let listaPre = document.getElementById('info-pre');
@@ -239,6 +255,11 @@ function activarEventos(map) {
         console.log("Redirigiendo al simulador de malla...");
         const ventana = document.getElementById("simulador-popup");
         ventana.classList.remove('oculto');
+    });
+
+    document.querySelector('#simulador-popup .button').addEventListener('click', () => {
+        const ventana = document.getElementById("simulador-popup");
+        ventana.classList.add('oculto');
     });
 
 }
