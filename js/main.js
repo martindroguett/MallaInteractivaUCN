@@ -24,6 +24,7 @@ function procesarJSON(json) {
     }
     return { listaRamos: ramos, map: map };
 }
+
 function cargarColoresFacultades(listaRamos,json){
     for(const ramo of listaRamos){
         const siglaFacu = ramo.id.split("-")[0];
@@ -33,6 +34,7 @@ function cargarColoresFacultades(listaRamos,json){
         }
     }
 }
+
 function romano(n) {
     switch (n) {
         case 1: return 'I';
@@ -91,6 +93,7 @@ function dibujarMalla(datosAgrupados) { //Añade los elementos al grid de la mal
         contenedor.appendChild(columna); //Lo agrega todo al grid
     });
 }
+
 function dibujarLeyenda(jsColor){
     const leyenda = document.getElementById('leyenda');
     leyenda.innerHTML='';
@@ -108,6 +111,7 @@ function dibujarLeyenda(jsColor){
     }
 
 }
+
 function agruparPorSemestres(lista) { //Obtiene el semestre y crea una lista por cada uno, donde se agregan los ramos
     const mallasPorSemestre = [];
     lista.forEach(ramo => {
@@ -131,136 +135,108 @@ function calcularPeso(ramo, map) {
     return 1 + max;
 }
 
-function mallaLoAntesPosible(maxCreditos, listaRamos){
+function mallaLoAntesPosible(maxCreditos, listaRamos, map){
     let porAprobar = listaRamos.filter(ramo => !ramo.aprobado);
 
-    let mejor = []
+    minSemestre = Math.min(...Object.values(map).filter(r => !r.aprobado).map(r => r.semestre)); 
 
-    
-    //backtracking
+    let minTemp = minSemestre;
+
+    while (porAprobar.length > 0) {
+
+    }
+}
+
+function actualizarDOM(map) {
+    const ramos = Object.values(map);
+
+    const pendientes = ramos.filter(r => !r.aprobado);
+
+    minSemestre = Math.min(...pendientes.map(r => r.semestre)); //Se determina el semestre mínimo no aprobado
+    console.log(`Mínimo semestre no aprobado: ${minSemestre}`);
+
+    const maxSemestre = minSemestre + 2;
+
+    ramos.forEach(ramo => {
         
+        if (!ramo.aprobado) {
+            
+            const prereqsOk = ramo.prerrequisitos.every(reqId => map[reqId].aprobado);
+            
+            const ventanaOk = ramo.semestre <= maxSemestre;
 
+            const estaDisponible = prereqsOk && ventanaOk;
+
+            ramo.disponible = estaDisponible;
+
+            const tarjeta = document.querySelector(`.ramo[data-id='${ramo.id}']`);
+            if (tarjeta) {
+                tarjeta.classList.toggle('disponible', estaDisponible);
+            }
+        }
+    });
+}
+
+function clickRamo(e, map) {
+    const ramo = e.target.closest('.ramo');
+    if (!ramo) return;
+
+    const id = ramo.dataset.id;
+    const ramoObj = map[id];
+
+    if (ramoObj.disponible || ramoObj.aprobado) {
+        ramoObj.aprobado = !ramoObj.aprobado;   
+        ramo.classList.toggle('aprobado', ramoObj.aprobado);
+        console.log(`Estado de ${ramoObj.nombre}: Aprobado = ${ramoObj.aprobado}`);
+        
+        actualizarDOM(map);
+    } 
+}
+
+function mostrarPopup(event, map) {
+    const tarjeta = event.target.closest('.ramo');
+    if (!tarjeta) return;
+
+    const id = tarjeta.dataset.id;
+    const ramoObj = map[id];
+    const ventana = document.getElementById("ramo-popup");
+
+    document.getElementById('nombreramo').textContent = ramoObj.nombre;
+    document.getElementById('info-id').textContent = ramoObj.id;
+    document.getElementById('info-sct').textContent = ramoObj.creditos;
+    
+    const fuerza = calcularPeso(ramoObj, map);
+    document.getElementById('info-fuerza').textContent = fuerza;
+
+    const listaPre = document.getElementById('info-pre');
+    listaPre.innerHTML = ''; // Limpiar anterior
+
+    if (ramoObj.prerrequisitos.length === 0) {
+        listaPre.textContent = 'Ninguno';
+
+    } else {
+        ramoObj.prerrequisitos.forEach(reqId => {
+            const li = document.createElement('li');
+            li.textContent = map[reqId] ? map[reqId].nombre : reqId;
+            listaPre.appendChild(li);
+        });
+    }
+
+    ventana.classList.remove('oculto');
+}
+
+function ocultarPopup() {
+    const ventana = document.getElementById("ramo-popup");
+    ventana.classList.add('oculto');
 }
 
 function activarEventos(map) {
-    document.getElementById('malla-container').addEventListener('click', (event) => {
-        const ramo = event.target.closest('.ramo');
-        if (!ramo) return;
+    const contenedor = document.getElementById('malla-container');
 
-        const id = ramo.dataset.id;
-        console.log(`Ramo seleccionado: ${id}`);
+    contenedor.addEventListener('click', (e) => clickRamo(e, map));
 
-        const ramoObj = map[id];
-        if(ramoObj.disponible){
-            ramo.classList.add('aprobado');
-            ramoObj.aprobado = !ramoObj.aprobado;   
-            ramoObj.disponible = !ramoObj.disponible;
-        } else if(ramoObj.aprobado){
-            ramo.classList.remove('aprobado');
-            ramoObj.aprobado = !ramoObj.aprobado;
-            ramoObj.disponible = !ramoObj.disponible;
-        }
-        
-
-        console.log(`Estado de ${ramoObj.nombre}: Aprobado = ${ramoObj.aprobado}`);
-
-        minSemestre = Math.min(...Object.values(map).filter(r => !r.aprobado).map(r => r.semestre)); //Se determina el semestre mínimo no aprobado
-        console.log(`Mínimo semestre no aprobado: ${minSemestre}`);
-
-        Object.values(map).filter(r => r.prerrequisitos.length == 0 || r.prerrequisitos.every(prereqId => map[prereqId].aprobado)).forEach(r => { //Revisa los ramos que no tienen prerrequisitos o que todos sus prerrequisitos están aprobados
-            if (!r.aprobado && minSemestre + 2 >= r.semestre) {
-                r.disponible = true;
-                const ramoLibre = document.querySelector(`.ramo[data-id='${r.id}']`);
-                ramoLibre.classList.add('disponible');
-            } else {
-                r.disponible = false;
-                const ramoLibre = document.querySelector(`.ramo[data-id='${r.id}']`);
-                ramoLibre.classList.remove('disponible');
-            }
-        });
-
-        if (ramoObj.aprobado) { //Si está aprobado revisa que desbloquea
-            ramoObj.desbloquea.forEach(idDesbloqueado => {
-                const ramoCandidatoObj = map[idDesbloqueado];
-                if (!ramoCandidatoObj.aprobado && ramoCandidatoObj.prerrequisitos.every(prereqId => map[prereqId].aprobado) && minSemestre + 2 >= ramoCandidatoObj.semestre) {
-                    ramoCandidatoObj.disponible = true;
-                    const ramoCandidato = document.querySelector(`.ramo[data-id='${idDesbloqueado}']`);
-                    ramoCandidato.classList.add('disponible');
-                    console.log(`Ramo desbloqueado: ${ramoCandidatoObj.nombre}`);
-                }
-            });
-        } else { //Si no está aprobado revisa que ramos se bloquean y si está disponible
-            for (const ramoCandidatoObj of Object.values(map)) {
-                if (ramoCandidatoObj.prerrequisitos.includes(id)) {
-                    ramoCandidatoObj.disponible = false;
-                    const ramoCandidato = document.querySelector(`.ramo[data-id='${ramoCandidatoObj.id}']`);
-                    ramoCandidato.classList.remove('disponible');
-                }
-            }
-
-            if (ramoObj.prerrequisitos.every(prereqId => map[prereqId].aprobado) && minSemestre + 2 >= ramoObj.semestre) {
-                ramoObj.disponible = true;
-                ramo.classList.add('disponible');
-            }
-        }
-
-    });
-    document.getElementById('malla-container').addEventListener('mouseover', (event2) =>{
-        const ramo = event2.target.closest('.ramo');
-        const id = ramo.dataset.id;
-        const ramoObj = map[id];
-
-        const ventana = document.getElementById("ramo-popup");
-        if (!ramo){  
-            document.getElementById('info-pre').textContent='';
-            ventana.classList.add('oculto');
-            return;    
-        }
-        const nom = ramoObj.nombre;
-        const sct = ramoObj.creditos;
-        const fuerza = calcularPeso(ramoObj, map);
-
-        document.getElementById('nombreramo').textContent=nom;
-        document.getElementById('info-id').textContent=id;
-        document.getElementById('info-sct').textContent=sct;
-        document.getElementById('info-fuerza').textContent=fuerza;
-
-        const req = ramoObj.prerrequisitos;
-        let listaPre = document.getElementById('info-pre');
-        listaPre.innerHTML='';
-        if(req.length==0){
-            listaPre.innerHTML='Ninguno';
-        } else {
-            req.forEach(idRequisito => { 
-            let prer = map[idRequisito].nombre;
-            let vineta = document.createElement('li');
-            vineta.innerText=prer;
-            listaPre.appendChild(vineta);
-        });
-        }
-
-        ventana.classList.remove('oculto');
-
-        console.log(`Ramo visto: ${id}`);
-
-
-    });
-    document.getElementById('malla-container').addEventListener('mouseleave', (event3) =>{
-        document.getElementById('info-pre').textContent='';
-        const ventana = document.getElementById("ramo-popup");
-        ventana.classList.add('oculto');
-    });
-
-    document.getElementById('simulador').addEventListener('click', () => {
-        console.log("Redirigiendo al simulador de malla...");
-        const ventana = document.getElementById("simulador-popup");
-        ventana.classList.remove('oculto');
-    });
-
-    document.querySelector('#simulador-popup .button').addEventListener('click', () => {
-        const ventana = document.getElementById("simulador-popup");
-        ventana.classList.add('oculto');
-    });
+    contenedor.addEventListener('mouseover', (e) => mostrarPopup(e, map));
+    contenedor.addEventListener('mouseout', (e) => ocultarPopup(e));
 
 }
 
