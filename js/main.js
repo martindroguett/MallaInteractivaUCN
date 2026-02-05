@@ -135,16 +135,62 @@ function calcularPeso(ramo, map) {
     return 1 + max;
 }
 
-function mallaLoAntesPosible(maxCreditos, listaRamos, map){
-    let porAprobar = listaRamos.filter(ramo => !ramo.aprobado);
+function mallaLoAntesPosible(maxCreditos, listaRamos){
+    let porAprobar = [];
+    let map = {};
 
-    minSemestre = Math.min(...Object.values(map).filter(r => !r.aprobado).map(r => r.semestre)); 
+    for (const ramo of listaRamos) {
+        map[ramo.id] = [ramo.aprobado, calcularPeso(ramo), ramo];
+        if (!ramo.aprobado) {
+            porAprobar.push(ramo);
+        }
+    }
 
-    let minTemp = minSemestre;
+    let simulado = [];
 
     while (porAprobar.length > 0) {
+        let creditosSem = maxCreditos;
+        let semestre = [];
 
+        const minTemp = Math.min(...porAprobar.map(r => r.semestre));
+        const maxTemp = minTemp + 2;
+
+        let disponibles = porAprobar.filter(r => r.semestre <= maxTemp); //Falta filtrar por prerrequisitos
+
+        disponibles = disponibles.filter(r => {
+            if (r.prerrequisitos.length === 0) return true;
+
+            const dispo = r.prerrequisitos.every(id => {
+                return map[id][0];
+            });
+            return dispo;
+        }); //Filtro de prerequisitos
+
+        disponibles.sort((a, b) => {
+
+            if (a.semestre != b.semestre) return a.semestre - b.semestre; //Prioriza semestre
+
+            return map[b.id][1] - map[a.id][1]; //Prioriza peso
+
+        });
+
+        for (const ramo of disponibles) {
+            if (creditosSem >= ramo.creditos) {
+                semestre.push(ramo);
+                creditosSem -= ramo.creditos;
+            }
+        }
+
+        simulado.push(semestre);
+
+        semestre.forEach(r => { map[r.id][0] = true });
+
+        const ids = new Set(semestre.map(r => r.id));
+
+        porAprobar = porAprobar.filter(r => !ids.has(r.id));
     }
+
+    return simulado;
 }
 
 function actualizarDOM(map) {
@@ -237,6 +283,10 @@ function activarEventos(map) {
 
     contenedor.addEventListener('mouseover', (e) => mostrarPopup(e, map));
     contenedor.addEventListener('mouseout', (e) => ocultarPopup(e));
+
+    const contenedorSimulador = document.getElementById('simulador');
+
+    contenedorSimulador.addEventListener('click', (e) => console.log('click'));
 
 }
 
