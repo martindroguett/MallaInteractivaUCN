@@ -28,10 +28,12 @@
     <p><strong>Fuerza:</strong> <ul id="info-fuerza"></ul></p>
     </div>
 
-    <div id="simulador-popup" class="simulador-popup oculto">
-    <span class="button">X</span>
-    <h3>Simulador de Malla</h3>
-    <p>Aquí puedes simular tu malla personalizada.</p>
+    <div id="overlay-simulador" class="overlay-simulador oculto">
+        <div class="header-simulador">
+        <h2>Simulador de ruta óptima</h2> 
+        <button id="cerrar-simulacion">Atrás</button> 
+        </div>
+        <div id="malla-simulador-container" class="malla-grid"></div>
     </div>
 
     <div id="leyenda"></div>

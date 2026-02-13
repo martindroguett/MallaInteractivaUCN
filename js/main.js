@@ -22,7 +22,7 @@ function procesarJSON(json) {
 
         });
     }
-    return { listaRamos: ramos, map: map };
+    return { listaRamos: ramos, mapaRamos: map };
 }
 
 function cargarColoresFacultades(listaRamos,json){
@@ -52,8 +52,8 @@ function romano(n) {
 
 }
 
-function dibujarMalla(datosAgrupados) { //Añade los elementos al grid de la malla
-    const contenedor = document.getElementById('malla-container');
+function dibujarMalla(idElemento,datosAgrupados) { //Añade los elementos al grid de la malla
+    const contenedor = document.getElementById(idElemento);
     contenedor.innerHTML = ''; //Limpia CSS
 
     const totalSemestres = datosAgrupados.length;
@@ -135,12 +135,12 @@ function calcularPeso(ramo, map) {
     return 1 + max;
 }
 
-function mallaLoAntesPosible(maxCreditos, listaRamos){
+function mallaLoAntesPosible(maxCreditos, listaRamos, mapaRamos){ 
     let porAprobar = [];
     let map = {};
 
     for (const ramo of listaRamos) {
-        map[ramo.id] = [ramo.aprobado, calcularPeso(ramo), ramo];
+        map[ramo.id] = [ramo.aprobado, calcularPeso(ramo, mapaRamos), ramo];
         if (!ramo.aprobado) {
             porAprobar.push(ramo);
         }
@@ -276,18 +276,33 @@ function ocultarPopup() {
     ventana.classList.add('oculto');
 }
 
-function activarEventos(map) {
+function mostrarSimulacion(event, listaRamos, mapaRamos){
+    const datosAgrupados = agruparPorSemestres(listaRamos);
+    dibujarMalla("malla-simulador-container",datosAgrupados);
+    document.getElementById("overlay-simulador").classList.remove("oculto");
+
+    const simulado = mallaLoAntesPosible(360,listaRamos, mapaRamos);
+    for(const semestre of simulado){
+        for(const ramo of semestre){
+            console.log(ramo.nombre);
+        }
+    }
+}
+
+function activarEventos(listaRamos,mapaRamos) {
     const contenedor = document.getElementById('malla-container');
 
-    contenedor.addEventListener('click', (e) => clickRamo(e, map));
+    contenedor.addEventListener('click', (e) => clickRamo(e, mapaRamos));
 
-    contenedor.addEventListener('mouseover', (e) => mostrarPopup(e, map));
+    contenedor.addEventListener('mouseover', (e) => mostrarPopup(e, mapaRamos));
     contenedor.addEventListener('mouseout', (e) => ocultarPopup(e));
 
-    const contenedorSimulador = document.getElementById('simulador');
+    const botonSimulador = document.getElementById('simulador');
+    botonSimulador.addEventListener('click', (e) => mostrarSimulacion(e, listaRamos, mapaRamos));
 
-    contenedorSimulador.addEventListener('click', (e) => console.log('click'));
-
+    const botonBackSimulador = document.getElementById("cerrar-simulacion");
+    botonBackSimulador.addEventListener('click', (e) => 
+        document.getElementById("overlay-simulador").classList.add("oculto"));
 }
 
 async function iniciarApp() {
@@ -302,15 +317,15 @@ async function iniciarApp() {
         const jsMalla = await malla.json();
         const jsColor = await colores.json();
 
-        const {listaRamos, map} = procesarJSON(jsMalla);
+        const {listaRamos, mapaRamos} = procesarJSON(jsMalla);
         cargarColoresFacultades(listaRamos,jsColor);
         dibujarLeyenda(jsColor);
 
-        activarEventos(map);
+        activarEventos(listaRamos,mapaRamos);
 
         const datosAgrupados = agruparPorSemestres(listaRamos);
 
-        dibujarMalla(datosAgrupados);
+        dibujarMalla('malla-container',datosAgrupados);
 
     } catch (error) {
         console.error("Error:", error);
