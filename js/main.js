@@ -1,9 +1,7 @@
 import { Asignatura } from "../js/asignatura.js";
-
 let minSemestre = 1;
 let indexSemestre = 0;
 let datosSimulados = [];
-
 function procesarJSON(json) {
     const ramos = [];
     const map = {};
@@ -311,7 +309,6 @@ function activarBotonesSimulacion(){
         if(indexSemestre>0) {
             contenedor.innerHTML='';
             dibujarSemestre(contenedor,datosSimulados[--indexSemestre],indexSemestre+1)
-            console.log(indexSemestre);
         }
     }
     );
@@ -319,7 +316,6 @@ function activarBotonesSimulacion(){
         if(indexSemestre<10) {
             contenedor.innerHTML='';
             dibujarSemestre(contenedor,datosSimulados[++indexSemestre],indexSemestre+1);
-            console.log(indexSemestre);
         }
     }
     );
@@ -335,8 +331,9 @@ function mostrarSimulacion(listaRamos, mapaRamos){
 }
 function cerrarSimulacion(){
     document.getElementById("overlay-simulador").classList.add("oculto");
-        document.getElementById("malla-simulador-container").innerHTML='';
-        indexSemestre = 0;
+    document.getElementById("malla-simulador-container").innerHTML='';
+    datosSimuladosActuales = [];
+    indexSemestre = 0;
 }
 function activarEventos(listaRamos,mapaRamos) {
     const contenedor = document.getElementById('malla-container');
@@ -356,12 +353,31 @@ function activarEventos(listaRamos,mapaRamos) {
     //cierre de simulación
     const botonBackSimulador = document.getElementById("cerrar-simulacion");
     botonBackSimulador.addEventListener('click', (e) => cerrarSimulacion());
+
+    //volver al menu
+    const botonRegresar = document.getElementById("regresar");
+    botonRegresar.addEventListener('click', (e)=> cerrarMalla());
+}
+function cerrarMalla(){
+    const espacio = document.getElementById("espacio-malla");
+    espacio.classList.add("oculto");
+    document.getElementById("menu-mallas").classList.remove("oculto");
+}
+function iniciarApp(){
+    const icci = document.getElementById("informatica");
+    const ici = document.getElementById("industrial");
+    const iti = document.getElementById("tecnologias");
+
+    icci.addEventListener("click" ,()=>{cargarMalla("data_ICCI.json");});
+    ici.addEventListener("click" ,()=>{return cargarMalla("data_ICI.json");});
+    iti.addEventListener("click" ,()=>{return cargarMalla("data_ITI.json");});
 }
 
-async function iniciarApp() {
+async function cargarMalla(carrera) {
+    document.getElementById("espacio-malla").classList.remove("oculto");
+    document.getElementById("menu-mallas").classList.add("oculto");
     try {
-
-        const [malla,colores] = await Promise.all([fetch('../data/data_ICCI.json'),
+        const [malla,colores] = await Promise.all([fetch('../data/'+carrera),
             fetch("../data/colores_INGC.json")]); 
         if (!malla.ok || !colores.ok) {
             throw new Error("No se pudo encontrar el archivo JSON");
@@ -377,7 +393,6 @@ async function iniciarApp() {
         activarEventos(listaRamos,mapaRamos);
 
         const datosAgrupados = agruparPorSemestres(listaRamos);
-
         dibujarMalla('malla-container',datosAgrupados);
 
     } catch (error) {
@@ -385,5 +400,4 @@ async function iniciarApp() {
         document.body.innerHTML = `<h2 style="color:red">Error: ${error.message}</h2>`;
     }
 }
-
 iniciarApp();

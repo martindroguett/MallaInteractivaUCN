@@ -6,29 +6,38 @@
     <link rel="stylesheet" href="css/style.css">
 </head>
 <body style="background-color: dodgerblue;">
-    <div id="titulo-container">
-        <h1>
-        <span class="titulo">MALLA DE INGENIERÍA CIVIL EN COMPUTACIÓN E INFORMÁTICA</span>
-        </h1>
+
+    <div id="menu-mallas">
+        <h1>Elige tu malla </h1>
+        <button id ="informatica">ICCI</button>
+        <button id = "industrial">ICI</button>
+        <button id="tecnologias">ITI</button>
     </div>
 
-    <div id="simulador"> 
-        <h1> 
-        <span class="button">Simula tu malla</span>
-        </h1>
-    </div>
+    <div id="espacio-malla" class ="oculto">
+        <div id="titulo-container">
+            <h1>
+            <span class="titulo">MALLA DE INGENIERÍA CIVIL EN COMPUTACIÓN E INFORMÁTICA</span>
+            <span id ="regresar" class="button">Volver al menú</span>
+            </h1>
+        </div>
 
-    <div id="malla-container"></div>
+        <div id="simulador"> 
+            <h1> 
+            <span class="button">Simula tu malla</span>
+            </h1>
+        </div>
+        <div id="malla-container"></div>
 
-    <div id="ramo-popup" class="info-card oculto">
+        <div id="ramo-popup" class="info-card oculto">
         <h3><span id="nombreramo"></span></h3>
         <p><strong>Código:</strong> <span id="info-id"></span></p>
         <p><strong>SCT:</strong> <span id="info-sct"></span></p>
         <p><strong>Prerrequisitos:</strong> <ul id="info-pre"></ul></p>
         <p><strong>Fuerza:</strong> <ul id="info-fuerza"></ul></p>
-    </div>
+        </div>
 
-    <div id="overlay-simulador" class="overlay-simulador oculto">
+        <div id="overlay-simulador" class="overlay-simulador oculto">
         <div class="header-simulador">
             <h2>Simulador de ruta óptima</h2> 
             <div class="botones-simulacion"> 
@@ -40,9 +49,12 @@
         </div>
         <div id="malla-simulador-container"></div>
         <div id="flechas-simulador"></div>
-    </div>
+        </div>
 
-    <div id="leyenda"></div>
+        <div id="leyenda"></div>
+    </div>
+  
     <script type="module" src="../js/main.js"></script> 
+    
 </body>
 </html>
