@@ -141,7 +141,8 @@ function mallaLoAntesPosible(maxCreditos, listaRamos, mapaRamos){
 
     for (const ramo of listaRamos) {
         map[ramo.id] = [ramo.aprobado, calcularPeso(ramo, mapaRamos), ramo];
-        if (!ramo.aprobado) {
+
+        if (!ramo.aprobado && ramo.id !== "ECIN-01000" && ramo.id !== "ECIN-08606") { //Evita capstone y practica
             porAprobar.push(ramo);
         }
     }
@@ -281,7 +282,7 @@ function mostrarSimulacion(event, listaRamos, mapaRamos){
     dibujarMalla("malla-simulador-container",datosAgrupados);
     document.getElementById("overlay-simulador").classList.remove("oculto");
 
-    const simulado = mallaLoAntesPosible(360,listaRamos, mapaRamos);
+    const simulado = mallaLoAntesPosible(30, listaRamos, mapaRamos);
     for(const semestre of simulado){
         for(const ramo of semestre){
             console.log(ramo.nombre);
