@@ -21,19 +21,25 @@
     <div id="malla-container"></div>
 
     <div id="ramo-popup" class="info-card oculto">
-    <h3><span id="nombreramo"></span></h3>
-    <p><strong>Código:</strong> <span id="info-id"></span></p>
-    <p><strong>SCT:</strong> <span id="info-sct"></span></p>
-    <p><strong>Prerrequisitos:</strong> <ul id="info-pre"></ul></p>
-    <p><strong>Fuerza:</strong> <ul id="info-fuerza"></ul></p>
+        <h3><span id="nombreramo"></span></h3>
+        <p><strong>Código:</strong> <span id="info-id"></span></p>
+        <p><strong>SCT:</strong> <span id="info-sct"></span></p>
+        <p><strong>Prerrequisitos:</strong> <ul id="info-pre"></ul></p>
+        <p><strong>Fuerza:</strong> <ul id="info-fuerza"></ul></p>
     </div>
 
     <div id="overlay-simulador" class="overlay-simulador oculto">
         <div class="header-simulador">
-        <h2>Simulador de ruta óptima</h2> 
-        <button id="cerrar-simulacion">Atrás</button> 
+            <h2>Simulador de ruta óptima</h2> 
+            <div class="botones-simulacion"> 
+                <button id="prev-semestre" class="boton-simulacion">Atrás</button>
+                <span id="indicador-semestre"></span>
+                <button id="sig-semestre" class="boton-simulacion">Adelante</button>
+            </div>
+            <button id="cerrar-simulacion" class="boton-simulacion">Salir</button>
         </div>
-        <div id="malla-simulador-container" class="malla-grid"></div>
+        <div id="malla-simulador-container"></div>
+        <div id="flechas-simulador"></div>
     </div>
 
     <div id="leyenda"></div>
