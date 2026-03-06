@@ -168,7 +168,7 @@ function mallaLoAntesPosible(maxCreditos, listaRamos, mapaRamos){
     for (const ramo of listaRamos) {
         map[ramo.id] = [ramo.aprobado, calcularPeso(ramo, mapaRamos), ramo];
 
-        if (!ramo.aprobado && ramo.id !== "ECIN-01000" && ramo.id !== "ECIN-08606") { //Evita capstone y practica
+        if (!ramo.aprobado && ramo.id !== "ECIN-01000" && ramo.nombre !== "PRACTICA PRE-PROFESIONAL") { //Evita capstone y practica
             porAprobar.push(ramo);
         }
     }
@@ -197,7 +197,7 @@ function mallaLoAntesPosible(maxCreditos, listaRamos, mapaRamos){
 
             if (a.semestre != b.semestre) return a.semestre - b.semestre; //Prioriza semestre
 
-            return map[b.id][1] - map[a.id][1]; //Prioriza peso
+            return map[b.id][1] - map[a.id][1]; //Prioriza fuerza
 
         });
 
@@ -216,6 +216,8 @@ function mallaLoAntesPosible(maxCreditos, listaRamos, mapaRamos){
 
         porAprobar = porAprobar.filter(r => !ids.has(r.id));
     }
+
+    simulado.push([mapaRamos["ECIN-01000"]])
 
     return simulado;
 }
@@ -313,6 +315,8 @@ function activarBotonesSimulacion(){
             contenedor.innerHTML='';
             dibujarSemestre(contenedor,datosSimulados[--indexSemestre],indexSemestre+1)
             console.log(indexSemestre);
+
+            console.log(datosSimulados[indexSemestre]);
         }
     }
     );
