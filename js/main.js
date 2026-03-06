@@ -312,12 +312,6 @@ function activarBotonesSimulacion(){
         if(indexSemestre>0) {
             contenedor.innerHTML='';
             dibujarSemestre(contenedor,datosSimulados[--indexSemestre],indexSemestre+1)
-<<<<<<< HEAD
-=======
-            console.log(indexSemestre);
-
-            console.log(datosSimulados[indexSemestre]);
->>>>>>> 8fbd77e9e6c0e3f388baacaacdc0104e1e384093
         }
     }
     );
