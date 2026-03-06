@@ -2,7 +2,8 @@ import { Asignatura } from "../js/asignatura.js";
 let minSemestre = 1;
 let indexSemestre = 0;
 let datosSimulados = [];
-
+let listaRamos = [];
+let mapaRamos = [];
 function procesarJSON(json) {
     const ramos = [];
     const map = {};
@@ -24,7 +25,7 @@ function procesarJSON(json) {
     return { listaRamos: ramos, mapaRamos: map };
 }
 
-function cargarColoresFacultades(listaRamos,json){
+function cargarColoresFacultades(json){
     for(const ramo of listaRamos){
         const siglaFacu = ramo.id.split("-")[0];
         if(json[siglaFacu]){
@@ -323,7 +324,7 @@ function activarBotonesSimulacion(){
     );
 
 }
-function mostrarSimulacion(listaRamos, mapaRamos){
+function mostrarSimulacion(){
     //se genera malla simulada
     datosSimulados = mallaLoAntesPosible(30,listaRamos,mapaRamos);
     //se muestra overlay y dibuja malla
@@ -337,7 +338,7 @@ function cerrarSimulacion(){
     document.getElementById("overlay-simulador").classList.add("oculto");
     document.getElementById("malla-simulador-container").innerHTML = '';
 }
-function activarEventos(listaRamos,mapaRamos) {
+function activarEventos() {
     const contenedor = document.getElementById('malla-container');
 
     //interacción con ramos
@@ -373,6 +374,8 @@ function iniciarApp(){
     icci.addEventListener("click" ,()=>{cargarMalla("data_ICCI.json");});
     ici.addEventListener("click" ,()=>{return cargarMalla("data_ICI.json");});
     iti.addEventListener("click" ,()=>{return cargarMalla("data_ITI.json");});
+
+    activarEventos();
 }
 
 async function cargarMalla(carrera) {
@@ -388,11 +391,13 @@ async function cargarMalla(carrera) {
         const jsMalla = await malla.json();
         const jsColor = await colores.json();
 
-        const {listaRamos, mapaRamos} = procesarJSON(jsMalla);
-        cargarColoresFacultades(listaRamos,jsColor);
+        
+        const datos = procesarJSON(jsMalla);
+        listaRamos = datos.listaRamos;
+        mapaRamos = datos.mapaRamos;
+        
+        cargarColoresFacultades(jsColor);
         dibujarLeyenda(jsColor);
-
-        activarEventos(listaRamos,mapaRamos);
 
         const datosAgrupados = agruparPorSemestres(listaRamos);
         dibujarMalla('malla-container',datosAgrupados);
