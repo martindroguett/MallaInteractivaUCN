@@ -2,6 +2,7 @@ import { Asignatura } from "../js/asignatura.js";
 let minSemestre = 1;
 let indexSemestre = 0;
 let datosSimulados = [];
+
 function procesarJSON(json) {
     const ramos = [];
     const map = {};
@@ -15,11 +16,9 @@ function procesarJSON(json) {
 
             map[id] = asignatura;
 
-
             prerrequisitos.forEach(idRequisito => { 
                 map[idRequisito].desbloquea.push(id);
             });
-
         });
     }
     return { listaRamos: ramos, mapaRamos: map };
