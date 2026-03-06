@@ -333,10 +333,10 @@ function mostrarSimulacion(listaRamos, mapaRamos){
     dibujarSemestre(document.getElementById("malla-simulador-container"),datosSimulados[0],1);
 }
 function cerrarSimulacion(){
-    document.getElementById("overlay-simulador").classList.add("oculto");
-    document.getElementById("malla-simulador-container").innerHTML='';
-    datosSimuladosActuales = [];
+    datosSimulados = [];
     indexSemestre = 0;
+    document.getElementById("overlay-simulador").classList.add("oculto");
+    document.getElementById("malla-simulador-container").innerHTML = '';
 }
 function activarEventos(listaRamos,mapaRamos) {
     const contenedor = document.getElementById('malla-container');
