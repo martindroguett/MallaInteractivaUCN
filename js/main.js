@@ -1,6 +1,8 @@
 import { Asignatura } from "../js/asignatura.js";
 
 let minSemestre = 1;
+let indexSemestre = 0;
+let datosSimulados = [];
 
 function procesarJSON(json) {
     const ramos = [];
@@ -47,6 +49,7 @@ function romano(n) {
         case 8: return 'VIII';
         case 9: return 'IX';
         case 10: return 'X';
+        case 11: return 'XI';
         default: return "";
     }
 
@@ -92,6 +95,29 @@ function dibujarMalla(idElemento,datosAgrupados) { //Añade los elementos al gri
 
         contenedor.appendChild(columna); //Lo agrega todo al grid
     });
+}
+
+function dibujarSemestre(contenedor,semestre,numeroSemestre){
+        const columna = document.createElement('div');
+        columna.className = 'semestre-column'; //Columnas
+        columna.style.width = `${30}%`; //Ajusta el tamaño de la columna según la cantidad de ramos
+
+        const titulo = document.createElement('div');
+        titulo.className = 'semestre-title';
+        titulo.textContent = romano(numeroSemestre);
+        columna.appendChild(titulo); //Título
+
+        semestre.forEach(ramo => {
+            const cuadro = document.createElement('div');
+            cuadro.style.backgroundColor=ramo.color; //se establece su color
+            cuadro.className = 'ramo';
+            cuadro.textContent = ramo.nombre;
+
+            cuadro.classList.toggle('disponible');
+            columna.appendChild(cuadro);
+        }); //Ramos
+
+        contenedor.appendChild(columna); //Lo agrega todo al grid
 }
 
 function dibujarLeyenda(jsColor){
@@ -276,34 +302,61 @@ function ocultarPopup() {
     const ventana = document.getElementById("ramo-popup");
     ventana.classList.add('oculto');
 }
+function activarBotonesSimulacion(){
+    const prev = document.getElementById("prev-semestre");
+    const sig = document.getElementById("sig-semestre");
+    const contenedor = document.getElementById("malla-simulador-container");
 
-function mostrarSimulacion(event, listaRamos, mapaRamos){
-    const datosAgrupados = agruparPorSemestres(listaRamos);
-    dibujarMalla("malla-simulador-container",datosAgrupados);
-    document.getElementById("overlay-simulador").classList.remove("oculto");
-
-    const simulado = mallaLoAntesPosible(30, listaRamos, mapaRamos);
-    for(const semestre of simulado){
-        for(const ramo of semestre){
-            console.log(ramo.nombre);
+    console.log(indexSemestre);
+    prev.addEventListener('click', ()=> {
+        if(indexSemestre>0) {
+            contenedor.innerHTML='';
+            dibujarSemestre(contenedor,datosSimulados[--indexSemestre],indexSemestre+1)
+            console.log(indexSemestre);
         }
     }
-}
+    );
+    sig.addEventListener('click', () => {
+        if(indexSemestre<10) {
+            contenedor.innerHTML='';
+            dibujarSemestre(contenedor,datosSimulados[++indexSemestre],indexSemestre+1);
+            console.log(indexSemestre);
+        }
+    }
+    );
 
+}
+function mostrarSimulacion(listaRamos, mapaRamos){
+    //se genera malla simulada
+    datosSimulados = mallaLoAntesPosible(30,listaRamos,mapaRamos);
+    //se muestra overlay y dibuja malla
+    const over = document.getElementById("overlay-simulador");
+    over.classList.remove("oculto");
+    dibujarSemestre(document.getElementById("malla-simulador-container"),datosSimulados[0],1);
+}
+function cerrarSimulacion(){
+    document.getElementById("overlay-simulador").classList.add("oculto");
+        document.getElementById("malla-simulador-container").innerHTML='';
+        indexSemestre = 0;
+}
 function activarEventos(listaRamos,mapaRamos) {
     const contenedor = document.getElementById('malla-container');
 
+    //interacción con ramos
     contenedor.addEventListener('click', (e) => clickRamo(e, mapaRamos));
 
+    //interacción con popup-ramo
     contenedor.addEventListener('mouseover', (e) => mostrarPopup(e, mapaRamos));
     contenedor.addEventListener('mouseout', (e) => ocultarPopup(e));
 
-    const botonSimulador = document.getElementById('simulador');
-    botonSimulador.addEventListener('click', (e) => mostrarSimulacion(e, listaRamos, mapaRamos));
+    //apertura de simulación
+    const botonSimulador = document.getElementById('simulador'); 
+    activarBotonesSimulacion();
+    botonSimulador.addEventListener('click', (e) => mostrarSimulacion(listaRamos, mapaRamos));
 
+    //cierre de simulación
     const botonBackSimulador = document.getElementById("cerrar-simulacion");
-    botonBackSimulador.addEventListener('click', (e) => 
-        document.getElementById("overlay-simulador").classList.add("oculto"));
+    botonBackSimulador.addEventListener('click', (e) => cerrarSimulacion());
 }
 
 async function iniciarApp() {
