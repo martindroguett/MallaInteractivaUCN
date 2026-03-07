@@ -2,5 +2,13 @@
     {
         "nombre" : "Ingeniería Civil en Informática",
         "codigo" : "ICCI"
+    },
+    {
+        "nombre" : "Ingeniería Civil Industrial",
+        "codigo" : "ICI"
+    },
+    {   
+        "nombre" : "Ingeniería en Tecnologías de Información",
+        "codigo" : "ITI"
     }
 ]

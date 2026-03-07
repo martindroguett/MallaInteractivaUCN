@@ -8,23 +8,26 @@
 <body style="background-color: dodgerblue;">
 
     <div id="menu-mallas">
-        <h1>Elige tu malla </h1>
-        <button id ="informatica">ICCI</button>
-        <button id = "industrial">ICI</button>
-        <button id="tecnologias">ITI</button>
+        <h1>Simulador de Malla UCN Coquimbo </h1>
+        <h2>¡Elige tu carrera para simular la ruta más corta a tu egreso!</h2>
+        <div id="botones-malla">
+        <button id ="informatica" class="boton-menu">ICCI</button>
+        <button id = "industrial" class="boton-menu">ICI</button>
+        <button id="tecnologias" class="boton-menu">ITI</button>
+        </div>
     </div>
 
     <div id="espacio-malla" class ="oculto">
         <div id="titulo-container">
             <h1>
-            <span class="titulo">MALLA DE INGENIERÍA CIVIL EN COMPUTACIÓN E INFORMÁTICA</span>
-            <span id ="regresar" class="button">Volver al menú</span>
+            <span id="titulo-carrera" class="titulo"></span>
             </h1>
         </div>
 
         <div id="simulador"> 
             <h1> 
-            <span class="button">Simula tu malla</span>
+            <button id="regresar" class="button">Volver al menú</button>
+            <button id="boton-simulador" class="button">Simula tu malla</button>
             </h1>
         </div>
         <div id="malla-container"></div>

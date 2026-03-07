@@ -4,6 +4,19 @@ let indexSemestre = 0;
 let datosSimulados = [];
 let listaRamos = [];
 let mapaRamos = [];
+let nombreCodigos = [];
+
+    /**
+     * Para agregar una carrera:  
+     * ir a setupBotonesMenu()
+     * 
+     * 1. Crear nuevo boton en div id=botones-malla: 
+     * estructura ->   <button id="nombre" class="boton-menu">CODIGO mallas.json</button>
+     * 
+     * 2. Agregar EventListener al botón. Y usar el índice donde
+     *  se encuentra la carrera en mallas.json (es un array de objetos).
+     */
+
 function procesarJSON(json) {
     const ramos = [];
     const map = {};
@@ -348,41 +361,80 @@ function activarEventos() {
     contenedor.addEventListener('mouseover', (e) => mostrarPopup(e, mapaRamos));
     contenedor.addEventListener('mouseout', (e) => ocultarPopup(e));
 
+    //volver al menu
+    const botonRegresar = document.getElementById("regresar");
+    botonRegresar.addEventListener('click', (e)=> cerrarMalla());
+
     //apertura de simulación
-    const botonSimulador = document.getElementById('simulador'); 
+    const botonSimulador = document.getElementById('boton-simulador'); 
     activarBotonesSimulacion();
-    botonSimulador.addEventListener('click', (e) => mostrarSimulacion(listaRamos, mapaRamos));
+    botonSimulador.addEventListener('click', (e) => {
+        mostrarSimulacion(listaRamos, mapaRamos)
+        console.log("BOTON PRESIONADO");
+    }
+);
 
     //cierre de simulación
     const botonBackSimulador = document.getElementById("cerrar-simulacion");
     botonBackSimulador.addEventListener('click', (e) => cerrarSimulacion());
 
-    //volver al menu
-    const botonRegresar = document.getElementById("regresar");
-    botonRegresar.addEventListener('click', (e)=> cerrarMalla());
 }
 function cerrarMalla(){
     const espacio = document.getElementById("espacio-malla");
     espacio.classList.add("oculto");
     document.getElementById("menu-mallas").classList.remove("oculto");
 }
-function iniciarApp(){
+/**setupBotonesMenu():
+ * obtiene los botones desde el .html y agrega el evento de cargarMalla(id).
+ * Instrucciones de cómo agregar una carrera están al inicio del main.js .
+ */
+function setupBotonesMenu(){
     const icci = document.getElementById("informatica");
     const ici = document.getElementById("industrial");
     const iti = document.getElementById("tecnologias");
-
-    icci.addEventListener("click" ,()=>{cargarMalla("data_ICCI.json");});
-    ici.addEventListener("click" ,()=>{return cargarMalla("data_ICI.json");});
-    iti.addEventListener("click" ,()=>{return cargarMalla("data_ITI.json");});
-
-    activarEventos();
+    icci.addEventListener("click" ,()=>{cargarMalla(0);});
+    ici.addEventListener("click" ,()=>{cargarMalla(1);});
+    iti.addEventListener("click" ,()=>{cargarMalla(2);});
 }
-
-async function cargarMalla(carrera) {
-    document.getElementById("espacio-malla").classList.remove("oculto");
-    document.getElementById("menu-mallas").classList.add("oculto");
+/**cargarMallas()
+ * Funcion asincrónica, debe llamarse con await, para asegurarse que
+ * cargue el .json correctamente antes de seguir con el programa.
+ * 
+ * Carga la información de mallas.json
+ * 
+ * @returns vector de objetos-carrera: {nombre:,codigo:}
+ */
+async function cargarMallas() {
     try {
-        const [malla,colores] = await Promise.all([fetch('../data/'+carrera),
+        //CARGA Y GUARDA DATOS DE mallas.json (nombres y codigos de cada carrera)
+        const [codigoCarreras] = await Promise.all([fetch('../data/mallas.json')]);
+        if(!codigoCarreras.ok){
+            throw new Error("No se pudo encontrar el archivo JSON");
+        }
+        const jsCarrera = await codigoCarreras.json();
+        return jsCarrera;
+
+    } catch (error) {
+        console.error("Error:", error);
+        document.body.innerHTML = `<h2 style="color:red">Error: ${error.message}</h2>`;
+    }
+}
+/**cargarMalla(id) 
+ * @param {*} id : corresponde la índice que tiene la carrera seleccionada
+ * dentro del vector de mallas.json.
+ * 
+ * Carga la data de la carrera seleccionada (nombre y codigo) desde el .json 
+ * y construye la malla.
+ */
+async function cargarMalla(id) {
+    try {
+
+        const carrera = nombreCodigos[id];
+        const nombreCarrera = carrera.nombre; //nombre a poner en titulo
+        const codigoCarrera = carrera.codigo; //codigo para buscar carrera
+
+        //UBICA DATA DE LA CARRERA Y LA CARGA
+        const [malla,colores] = await Promise.all([fetch('../data/data_'+codigoCarrera+'.json'),
             fetch("../data/colores_INGC.json")]); 
         if (!malla.ok || !colores.ok) {
             throw new Error("No se pudo encontrar el archivo JSON");
@@ -402,9 +454,31 @@ async function cargarMalla(carrera) {
         const datosAgrupados = agruparPorSemestres(listaRamos);
         dibujarMalla('malla-container',datosAgrupados);
 
+        document.getElementById("titulo-carrera").innerText = nombreCarrera;
+        document.getElementById("espacio-malla").classList.remove("oculto");
+        document.getElementById("menu-mallas").classList.add("oculto");
     } catch (error) {
         console.error("Error:", error);
         document.body.innerHTML = `<h2 style="color:red">Error: ${error.message}</h2>`;
     }
 }
+
+/**iniciarApp():
+ * inicia toda la aplicación.
+ * 1. Espera cargar la lista de las carreras en la variable global 'nombresCodigos'
+ * 2. Activa los eventos en el menu.
+ * 3. Activa los eventos en el malla-container.
+ * 
+ * error: el procesamiento para cargar los datos de las carreras falló.
+ */
+async function iniciarApp(){
+    try{
+        nombreCodigos = await cargarMallas();
+        setupBotonesMenu();
+        activarEventos();
+    } catch(error){
+        throw new Error("ERROR CRÍTICO AL INCIAR EL PROGRAMA",error);
+    }
+}
+
 iniciarApp();
