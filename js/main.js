@@ -87,7 +87,7 @@ function dibujarMalla(idElemento,datosAgrupados) { //Añade los elementos al gri
 
         ramosSemestre.forEach(ramo => {
             const cuadro = document.createElement('div');
-            cuadro.style.backgroundColor=ramo.color; //se establece su color
+            cuadro.style.borderLeftColor = ramo.color; //se establece su color
             cuadro.className = 'ramo';
             cuadro.textContent = ramo.nombre;
             if (index+1 == totalSemestres) {
@@ -120,7 +120,7 @@ function dibujarSemestre(contenedor,semestre,numeroSemestre){
 
         semestre.forEach(ramo => {
             const cuadro = document.createElement('div');
-            cuadro.style.backgroundColor=ramo.color; //se establece su color
+            cuadro.style.borderLeft = ramo.color; //se establece su color
             cuadro.className = 'ramo';
             cuadro.textContent = ramo.nombre;
 
@@ -309,6 +309,17 @@ function mostrarPopup(event, map) {
     }
 
     ventana.classList.remove('oculto');
+
+    const mouseX = event.clientX;
+    const anchoVentana = window.innerWidth;
+
+    if (mouseX > window.innerWidth / 2) {
+        ventana.style.left = 20 + "px";
+
+    } else {
+        ventana.style.left = (anchoVentana - ventana.offsetWidth - 20) + "px";
+    }
+
 }
 
 function ocultarPopup() {
@@ -367,6 +378,7 @@ function activarEventos() {
 
     //apertura de simulación
     const botonSimulador = document.getElementById('boton-simulador'); 
+
     activarBotonesSimulacion();
     botonSimulador.addEventListener('click', (e) => {
         mostrarSimulacion(listaRamos, mapaRamos)
