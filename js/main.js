@@ -65,41 +65,8 @@ function dibujarMalla(idElemento,datosAgrupados) { //Añade los elementos al gri
     const contenedor = document.getElementById(idElemento);
     contenedor.innerHTML = ''; //Limpia CSS
 
-    const totalSemestres = datosAgrupados.length;
-
     datosAgrupados.forEach((ramosSemestre, index) => {
-        
-        const columna = document.createElement('div');
-        columna.className = 'semestre-column'; //Columnas
-        columna.style.width = `${100 / totalSemestres}%`; //Ajusta el tamaño de la columna según la cantidad de ramos
-
-        const titulo = document.createElement('div');
-        titulo.className = 'semestre-title';
-        titulo.textContent = romano(index + 1);
-        columna.appendChild(titulo); //Título
-
-
-
-        ramosSemestre.forEach(ramo => {
-            const cuadro = document.createElement('div');
-            cuadro.style.borderLeftColor = ramo.color; //se establece su color
-            cuadro.className = 'ramo';
-            cuadro.textContent = ramo.nombre;
-            if (index+1 == totalSemestres) {
-                cuadro.style.minHeight = '610px'; 
-            }
-
-
-            if (ramo.disponible && minSemestre + 2 >= ramo.semestre) {
-                cuadro.classList.toggle('disponible');
-            }
-
-            cuadro.dataset.id = ramo.id; //Para detectar que ramo se selecciona
-
-            columna.appendChild(cuadro);
-        }); //Ramos
-
-        contenedor.appendChild(columna); //Lo agrega todo al grid
+        dibujarSemestre(contenedor,ramosSemestre,index+1);
     });
 }
 
@@ -326,7 +293,6 @@ function activarBotonesSimulacion(){
     const sig = document.getElementById("sig-semestre");
     const contenedor = document.getElementById("malla-simulador-container");
 
-    console.log(indexSemestre);
     prev.addEventListener('click', ()=> {
         if(indexSemestre>0) {
             contenedor.innerHTML='';
@@ -341,6 +307,11 @@ function activarBotonesSimulacion(){
         }
     }
     );
+
+    const botonSimulador = document.getElementById('boton-simulador'); 
+    botonSimulador.addEventListener('click', (e) =>mostrarSimulacion(listaRamos, mapaRamos));
+    const botonBackSimulador = document.getElementById("cerrar-simulacion");
+    botonBackSimulador.addEventListener('click', (e) => cerrarSimulacion());    
 
 }
 function mostrarSimulacion(){
@@ -357,12 +328,15 @@ function cerrarSimulacion(){
     document.getElementById("overlay-simulador").classList.add("oculto");
     document.getElementById("malla-simulador-container").innerHTML = '';
 }
+
 function activarEventos() {
-    const contenedor = document.getElementById('malla-container');
+    //seleccion de carrera
+    setupBotonesMenu();
 
     //interacción con ramos
+    const contenedor = document.getElementById('malla-container');
     contenedor.addEventListener('click', (e) => clickRamo(e, mapaRamos));
-
+    
     //interacción con popup-ramo
     contenedor.addEventListener('mouseover', (e) => mostrarPopup(e, mapaRamos));
     contenedor.addEventListener('mouseout', (e) => ocultarPopup(e));
@@ -372,19 +346,7 @@ function activarEventos() {
     botonRegresar.addEventListener('click', (e)=> cerrarMalla());
 
     //apertura de simulación
-    const botonSimulador = document.getElementById('boton-simulador'); 
-
     activarBotonesSimulacion();
-    botonSimulador.addEventListener('click', (e) => {
-        mostrarSimulacion(listaRamos, mapaRamos)
-        console.log("BOTON PRESIONADO");
-    }
-);
-
-    //cierre de simulación
-    const botonBackSimulador = document.getElementById("cerrar-simulacion");
-    botonBackSimulador.addEventListener('click', (e) => cerrarSimulacion());
-
 }
 function cerrarMalla(){
     const espacio = document.getElementById("espacio-malla");
@@ -400,7 +362,7 @@ function setupBotonesMenu(){
         const boton = document.createElement('button');
         boton.className = 'boton-menu';
         boton.textContent = carrera.codigo;
-        boton.addEventListener("click" ,()=>{cargarMalla(carrera.nombre,carrera.codigo);});
+        boton.addEventListener("click" ,()=>cargarMalla(carrera.nombre,carrera.codigo));
         menu.appendChild(boton);
     });
 }
@@ -414,8 +376,7 @@ function setupBotonesMenu(){
  */
 async function cargarMallas() {
     try {
-        //CARGA Y GUARDA DATOS DE mallas.json (nombres y codigos de cada carrera)
-        const [codigoCarreras] = await Promise.all([fetch('../data/mallas.json')]);
+        const codigoCarreras = await fetch('../data/mallas.json');
         if(!codigoCarreras.ok){
             throw new Error("No se pudo encontrar el archivo JSON");
         }
@@ -427,16 +388,15 @@ async function cargarMallas() {
         document.body.innerHTML = `<h2 style="color:red">Error: ${error.message}</h2>`;
     }
 }
-/**cargarMalla(id) 
- * @param {*} id : corresponde la índice que tiene la carrera seleccionada
- * dentro del vector de mallas.json.
+/**cargarMalla(nombreCarrera,codigoCarrera) 
+ * @param {} nombreCarrera : corresponde al nombre que tiene la carrera dentro de mallas.json
+ * @param {} codigoCarrera : corresponde al código que tiene la carrera dentro de mallas.json
  * 
  * Carga la data de la carrera seleccionada (nombre y codigo) desde el .json 
  * y construye la malla.
  */
 async function cargarMalla(nombreCarrera,codigoCarrera) {
     try {
-        //UBICA DATA DE LA CARRERA Y LA CARGA
         const [malla,colores] = await Promise.all([fetch('../data/data_'+codigoCarrera+'.json'),
             fetch("../data/colores_INGC.json")]); 
         if (!malla.ok || !colores.ok) {
@@ -469,16 +429,12 @@ async function cargarMalla(nombreCarrera,codigoCarrera) {
 /**iniciarApp():
  * inicia toda la aplicación.
  * 1. Espera cargar la lista de las carreras en la variable global 'nombresCodigos'
- * 2. Activa los eventos en el menu.
- * 3. Activa los eventos en el malla-container.
- * 
+ * 2. Activa todos los eventos de botones.
  * error: el procesamiento para cargar los datos de las carreras falló.
  */
 async function iniciarApp(){
     try{
         nombreCodigos = await cargarMallas();
-        console.log(nombreCodigos);
-        setupBotonesMenu();
         activarEventos();
     } catch(error){
         throw new Error("ERROR CRÍTICO AL INCIAR EL PROGRAMA",error);
