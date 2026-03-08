@@ -8,13 +8,8 @@ let nombreCodigos = [];
 
     /**
      * Para agregar una carrera:  
-     * ir a setupBotonesMenu()
-     * 
-     * 1. Crear nuevo boton en div id=botones-malla: 
-     * estructura ->   <button id="nombre" class="boton-menu">CODIGO mallas.json</button>
-     * 
-     * 2. Agregar EventListener al botón. Y usar el índice donde
-     *  se encuentra la carrera en mallas.json (es un array de objetos).
+     * 1. crear archivo data_CARRERA.json, con la misma estructura. 
+     * 2. agregar nombre y codigo de carrera en mallas.json, con la mista estructura.
      */
 
 function procesarJSON(json) {
@@ -385,16 +380,17 @@ function cerrarMalla(){
     document.getElementById("menu-mallas").classList.remove("oculto");
 }
 /**setupBotonesMenu():
- * obtiene los botones desde el .html y agrega el evento de cargarMalla(id).
- * Instrucciones de cómo agregar una carrera están al inicio del main.js .
+ * Recorre la lista de carreras y crea un botón para cada una de ellas.
  */
 function setupBotonesMenu(){
-    const icci = document.getElementById("informatica");
-    const ici = document.getElementById("industrial");
-    const iti = document.getElementById("tecnologias");
-    icci.addEventListener("click" ,()=>{cargarMalla(0);});
-    ici.addEventListener("click" ,()=>{cargarMalla(1);});
-    iti.addEventListener("click" ,()=>{cargarMalla(2);});
+    const menu = document.getElementById("botones-malla");
+    nombreCodigos.forEach(carrera=>{
+        const boton = document.createElement('button');
+        boton.className = 'boton-menu';
+        boton.textContent = carrera.codigo;
+        boton.addEventListener("click" ,()=>{cargarMalla(carrera.nombre,carrera.codigo);});
+        menu.appendChild(boton);
+    });
 }
 /**cargarMallas()
  * Funcion asincrónica, debe llamarse con await, para asegurarse que
@@ -426,13 +422,8 @@ async function cargarMallas() {
  * Carga la data de la carrera seleccionada (nombre y codigo) desde el .json 
  * y construye la malla.
  */
-async function cargarMalla(id) {
+async function cargarMalla(nombreCarrera,codigoCarrera) {
     try {
-
-        const carrera = nombreCodigos[id];
-        const nombreCarrera = carrera.nombre; //nombre a poner en titulo
-        const codigoCarrera = carrera.codigo; //codigo para buscar carrera
-
         //UBICA DATA DE LA CARRERA Y LA CARGA
         const [malla,colores] = await Promise.all([fetch('../data/data_'+codigoCarrera+'.json'),
             fetch("../data/colores_INGC.json")]); 
@@ -474,6 +465,7 @@ async function cargarMalla(id) {
 async function iniciarApp(){
     try{
         nombreCodigos = await cargarMallas();
+        console.log(nombreCodigos);
         setupBotonesMenu();
         activarEventos();
     } catch(error){
