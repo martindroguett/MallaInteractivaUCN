@@ -410,7 +410,7 @@ function activarEventos() {
     botonRegresar.addEventListener('click', (e)=> cerrarMalla());
 
     //apertura de simulación
-<<<<<<< HEAD
+    
     botonSimulador.addEventListener('click', (e) => {
         let maxCreditos = parseInt(input.value);
         mensajeError.textContent = ""; 
@@ -463,10 +463,6 @@ function activarEventos() {
         }
     }
     );
-
-=======
-    activarBotonesSimulacion();
->>>>>>> 0a401424591925cd9a8e76a412f25189f61e276e
 }
 function cerrarMalla(){
     const espacio = document.getElementById("espacio-malla");
