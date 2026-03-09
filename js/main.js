@@ -65,8 +65,38 @@ function dibujarMalla(idElemento,datosAgrupados) { //Añade los elementos al gri
     const contenedor = document.getElementById(idElemento);
     contenedor.innerHTML = ''; //Limpia CSS
 
+    const totalSemestres = datosAgrupados.length;
+
     datosAgrupados.forEach((ramosSemestre, index) => {
-        dibujarSemestre(contenedor,ramosSemestre,index+1);
+                
+        const columna = document.createElement('div');
+        columna.className = 'semestre-column'; //Columnas
+        columna.style.width = `${100 / totalSemestres}%`; //Ajusta el tamaño de la columna según la cantidad de ramos
+
+        const titulo = document.createElement('div');
+        titulo.className = 'semestre-title';
+        titulo.textContent = romano(index + 1);
+        columna.appendChild(titulo); //Título
+
+        ramosSemestre.forEach(ramo => {
+            const cuadro = document.createElement('div');
+            cuadro.style.borderLeftColor = ramo.color; //se establece su color
+            cuadro.className = 'ramo';
+            cuadro.textContent = ramo.nombre;
+            if (index+1 == totalSemestres) {
+                cuadro.style.minHeight = '610px'; 
+            }
+
+            if (ramo.disponible && minSemestre + 2 >= ramo.semestre) {
+                cuadro.classList.toggle('disponible');
+            }
+
+            cuadro.dataset.id = ramo.id; //Para detectar que ramo se selecciona
+
+            columna.appendChild(cuadro);
+        }); //Ramos
+
+        contenedor.appendChild(columna); //Lo agrega todo al grid
     });
 }
 
@@ -85,9 +115,9 @@ function dibujarSemestre(contenedor,semestre,numeroSemestre){
             cuadro.style.borderLeft = ramo.color; //se establece su color
             cuadro.className = 'ramo';
             cuadro.textContent = ramo.nombre;
-
-            cuadro.classList.toggle('disponible');
             columna.appendChild(cuadro);
+            cuadro.classList.toggle('disponible');
+            cuadro.dataset.id = ramo.id; 
         }); //Ramos
 
         contenedor.appendChild(columna); //Lo agrega todo al grid
@@ -405,12 +435,11 @@ async function cargarMalla(nombreCarrera,codigoCarrera) {
 
         const jsMalla = await malla.json();
         const jsColor = await colores.json();
-
         
         const datos = procesarJSON(jsMalla);
         listaRamos = datos.listaRamos;
         mapaRamos = datos.mapaRamos;
-        
+      
         cargarColoresFacultades(jsColor);
         dibujarLeyenda(jsColor);
 
