@@ -21,10 +21,17 @@
         </div>
 
         <div id="simulador"> 
-            <h1> 
-            <button id="regresar" class="button">Volver al menú</button>
-            <button id="boton-simulador" class="button">Simula tu malla</button>
-            </h1>
+            <div class="botones-caja">
+                <button id="regresar" class="button">Volver al menú</button>
+                <button id="boton-simulador" class="button">Simula tu malla</button>
+                <div class="config-creditos">
+                    <label class="label-creditos">Max SCT p/semestre:</label>
+                    <div class="input-y-error">
+                        <input type="number" id="input-creditos" class="input-creditos" value="30">
+                        <span id="mensaje-error" class="mensaje-error"></span>
+                    </div>
+                </div>
+            </div> 
         </div>
     
         <div id="malla-container"></div>
@@ -38,17 +45,24 @@
         </div>
 
         <div id="overlay-simulador" class="overlay-simulador oculto">
-        <div class="header-simulador">
-            <h2>Simulador de ruta óptima</h2> 
-            <div class="botones-simulacion"> 
-                <button id="prev-semestre" class="boton-simulacion">Atrás</button>
-                <span id="indicador-semestre"></span>
-                <button id="sig-semestre" class="boton-simulacion">Adelante</button>
+
+            <div class="header-simulador">
+                <h2>Simulador de ruta óptima</h2> 
+
+                <div class="botones-simulacion"> 
+                    <button id="prev-semestre" class="boton-simulacion"><-</button>
+
+                    <span id="indicador-semestre"></span>
+
+                    <button id="sig-semestre" class="boton-simulacion">-></button>
+                </div>
+
+                <button id="cerrar-simulacion" class="boton-simulacion">Salir</button>
             </div>
-            <button id="cerrar-simulacion" class="boton-simulacion">Salir</button>
-        </div>
-        <div id="malla-simulador-container"></div>
-        <div id="flechas-simulador"></div>
+
+            <div id="malla-simulador-container"></div>
+
+            <div id="flechas-simulador"></div>
         </div>
 
         <div id="leyenda"></div>

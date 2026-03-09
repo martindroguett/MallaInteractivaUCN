@@ -6,7 +6,7 @@ let listaRamos = [];
 let mapaRamos = [];
 let nombreCodigos = [];
 
-    /**
+    /*
      * Para agregar una carrera:  
      * 1. crear archivo data_CARRERA.json, con la misma estructura. 
      * 2. agregar nombre y codigo de carrera en mallas.json, con la mista estructura.
@@ -17,6 +17,7 @@ function procesarJSON(json) {
     const map = {};
     
     for (const [sem, ramosSemestre] of Object.entries(json)) {
+
         ramosSemestre.forEach(ramoData => { 
             const [id, nombre, creditos, prerrequisitos] = ramoData;
             const asignatura = new Asignatura(id, nombre, creditos, prerrequisitos);
@@ -28,7 +29,9 @@ function procesarJSON(json) {
             prerrequisitos.forEach(idRequisito => { 
                 map[idRequisito].desbloquea.push(id);
             });
+
         });
+       
     }
     return { listaRamos: ramos, mapaRamos: map };
 }
@@ -43,21 +46,24 @@ function cargarColoresFacultades(json){
     }
 }
 
-function romano(n) {
-    switch (n) {
-        case 1: return 'I';
-        case 2: return 'II';
-        case 3: return 'III';
-        case 4: return 'IV';
-        case 5: return 'V';
-        case 6: return 'VI';
-        case 7: return 'VII';
-        case 8: return 'VIII';
-        case 9: return 'IX';
-        case 10: return 'X';
-        case 11: return 'XI';
-        default: return "";
+function romano(num) {
+    // Mapeo de valores decimales a romanos en orden descendente
+    const map = {
+        M: 1000, CM: 900, D: 500, CD: 400,
+        C: 100, XC: 90, L: 50, XL: 40,
+        X: 10, IX: 9, V: 5, IV: 4, I: 1
+    };
+    
+    let result = '';
+    
+    for (let key in map) {
+        // Mientras el número actual sea mayor o igual al valor arábigo
+        while (num >= map[key]) {
+            result += key; // Agrega el símbolo romano
+            num -= map[key]; // Resta el valor correspondiente
+        }
     }
+    return result;
 
 }
 
@@ -207,7 +213,26 @@ function mallaLoAntesPosible(maxCreditos, listaRamos, mapaRamos){
 
         });
 
+        let aux = -1;
+        let temp = 0;
+
         for (const ramo of disponibles) {
+            if (ramo.semestre === aux) {
+                temp += ramo.creditos;
+            } else {
+                temp = ramo.creditos;
+            }
+
+            if (maxCreditos === 30 && temp > 30) {
+                creditosSem = temp;
+            }
+
+            aux = ramo.semestre;
+        }
+
+
+        for (const ramo of disponibles) {
+
             if (creditosSem >= ramo.creditos) {
                 semestre.push(ramo);
                 creditosSem -= ramo.creditos;
@@ -321,12 +346,12 @@ function ocultarPopup() {
     const ventana = document.getElementById("ramo-popup");
     ventana.classList.add('oculto');
 }
+/*
 function activarBotonesSimulacion(){
     const prev = document.getElementById("prev-semestre");
     const sig = document.getElementById("sig-semestre");
     const contenedor = document.getElementById("malla-simulador-container");
 
-    console.log(indexSemestre);
     prev.addEventListener('click', ()=> {
         if(indexSemestre>0) {
             contenedor.innerHTML='';
@@ -343,9 +368,12 @@ function activarBotonesSimulacion(){
     );
 
 }
-function mostrarSimulacion(){
+*/
+
+function mostrarSimulacion(maxCreditos, listaRamos, mapaRamos){
+    indexSemestre = 0;
     //se genera malla simulada
-    datosSimulados = mallaLoAntesPosible(30,listaRamos,mapaRamos);
+    datosSimulados = mallaLoAntesPosible(maxCreditos,listaRamos,mapaRamos);
     //se muestra overlay y dibuja malla
     const over = document.getElementById("overlay-simulador");
     over.classList.remove("oculto");
@@ -357,6 +385,7 @@ function cerrarSimulacion(){
     document.getElementById("overlay-simulador").classList.add("oculto");
     document.getElementById("malla-simulador-container").innerHTML = '';
 }
+
 function activarEventos() {
     const contenedor = document.getElementById('malla-container');
 
@@ -367,23 +396,68 @@ function activarEventos() {
     contenedor.addEventListener('mouseover', (e) => mostrarPopup(e, mapaRamos));
     contenedor.addEventListener('mouseout', (e) => ocultarPopup(e));
 
+    const botonSimulador = document.getElementById('boton-simulador'); 
+    const input = document.getElementById('input-creditos');
+    const mensajeError = document.getElementById('mensaje-error');
+
+
     //volver al menu
     const botonRegresar = document.getElementById("regresar");
     botonRegresar.addEventListener('click', (e)=> cerrarMalla());
 
     //apertura de simulación
-    const botonSimulador = document.getElementById('boton-simulador'); 
-
-    activarBotonesSimulacion();
     botonSimulador.addEventListener('click', (e) => {
-        mostrarSimulacion(listaRamos, mapaRamos)
-        console.log("BOTON PRESIONADO");
-    }
-);
+        let maxCreditos = parseInt(input.value);
+        mensajeError.textContent = ""; 
 
-    //cierre de simulación
-    const botonBackSimulador = document.getElementById("cerrar-simulacion");
-    botonBackSimulador.addEventListener('click', (e) => cerrarSimulacion());
+        
+        if (isNaN(maxCreditos)) {
+            mensajeError.textContent = "Ingrese un número.";
+            return;
+        } 
+        
+        if (maxCreditos < 6) {
+            mensajeError.textContent = "Mínimo 6 SCT.";
+            return;
+        } 
+        
+        if (maxCreditos > 30) {
+            mensajeError.textContent = "Máximo 30 SCT.";
+            return;
+        }
+
+        console.log(maxCreditos);
+
+        mostrarSimulacion(maxCreditos, listaRamos, mapaRamos); 
+        
+        //activarBotonesSimulacion(); 
+        const botonBackSimulador = document.getElementById("cerrar-simulacion");
+
+        botonBackSimulador.addEventListener('click', cerrarSimulacion);
+    });
+    
+    input.addEventListener('input', () => {
+        mensajeError.textContent = ""; 
+    });
+
+    const prev = document.getElementById("prev-semestre");
+    const sig = document.getElementById("sig-semestre");
+    const contSimulador = document.getElementById("malla-simulador-container");
+
+    prev.addEventListener('click', ()=> {
+        if(indexSemestre>0) {
+            contSimulador.innerHTML='';
+            dibujarSemestre(contSimulador,datosSimulados[--indexSemestre],indexSemestre+1)
+        }
+    }
+    );
+    sig.addEventListener('click', () => {
+        if(indexSemestre<datosSimulados.length - 1) {
+            contSimulador.innerHTML='';
+            dibujarSemestre(contSimulador,datosSimulados[++indexSemestre],indexSemestre+1);
+        }
+    }
+    );
 
 }
 function cerrarMalla(){
@@ -481,7 +555,7 @@ async function iniciarApp(){
         setupBotonesMenu();
         activarEventos();
     } catch(error){
-        throw new Error("ERROR CRÍTICO AL INCIAR EL PROGRAMA",error);
+        throw new Error("ERROR AL INCIAR EL PROGRAMA",error);
     }
 }
 
