@@ -19,6 +19,16 @@
     transition: 0.5s;
 }
 
+#logos-menu{
+    display: inline-block;
+}
+
+.logo-icono{
+    padding: 10px;
+    width: auto;
+    height: 6rem;
+}
+
 .boton-menu{
     background-color: rgba(21, 94, 117);
     color: white;
