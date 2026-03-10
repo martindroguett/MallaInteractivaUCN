@@ -308,8 +308,6 @@ function mostrarPopup(event, map) {
     document.getElementById('info-id').textContent = ramoObj.id;
     document.getElementById('info-sct').textContent = ramoObj.creditos;
     
-    const fuerza = calcularPeso(ramoObj, map);
-    document.getElementById('info-fuerza').textContent = fuerza;
 
     const listaPre = document.getElementById('info-pre');
     listaPre.innerHTML = ''; // Limpiar anterior
@@ -343,34 +341,6 @@ function ocultarPopup() {
     const ventana = document.getElementById("ramo-popup");
     ventana.classList.add('oculto');
 }
-/*
-function activarBotonesSimulacion(){
-    const prev = document.getElementById("prev-semestre");
-    const sig = document.getElementById("sig-semestre");
-    const contenedor = document.getElementById("malla-simulador-container");
-
-    prev.addEventListener('click', ()=> {
-        if(indexSemestre>0) {
-            contenedor.innerHTML='';
-            dibujarSemestre(contenedor,datosSimulados[--indexSemestre],indexSemestre+1)
-        }
-    }
-    );
-    sig.addEventListener('click', () => {
-        if(indexSemestre<10) {
-            contenedor.innerHTML='';
-            dibujarSemestre(contenedor,datosSimulados[++indexSemestre],indexSemestre+1);
-        }
-    }
-    );
-
-    const botonSimulador = document.getElementById('boton-simulador'); 
-    botonSimulador.addEventListener('click', (e) =>mostrarSimulacion(listaRamos, mapaRamos));
-    const botonBackSimulador = document.getElementById("cerrar-simulacion");
-    botonBackSimulador.addEventListener('click', (e) => cerrarSimulacion());    
-
-}
-*/
 
 function mostrarSimulacion(maxCreditos, listaRamos, mapaRamos){
     indexSemestre = 0;
