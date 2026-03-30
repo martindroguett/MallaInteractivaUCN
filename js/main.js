@@ -1,4 +1,4 @@
-import { Asignatura } from "../js/asignatura.js";
+import { Asignatura } from "./js/asignatura.js";
 let minSemestre = 1;
 let indexSemestre = 0;
 let datosSimulados = [];
