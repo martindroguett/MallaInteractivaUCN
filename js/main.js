@@ -462,7 +462,7 @@ function setupBotonesMenu(){
  */
 async function cargarMallas() {
     try {
-        const codigoCarreras = await fetch('../data/mallas.json');
+        const codigoCarreras = await fetch('data/mallas.json');
         if(!codigoCarreras.ok){
             throw new Error("No se pudo encontrar el archivo JSON");
         }
@@ -483,8 +483,8 @@ async function cargarMallas() {
  */
 async function cargarMalla(nombreCarrera,codigoCarrera) {
     try {
-        const [malla,colores] = await Promise.all([fetch('../data/data_'+codigoCarrera+'.json'),
-            fetch("../data/colores_INGC.json")]); 
+        const [malla,colores] = await Promise.all([fetch('data/data_'+codigoCarrera+'.json'),
+            fetch("data/colores_INGC.json")]); 
         if (!malla.ok || !colores.ok) {
             throw new Error("No se pudo encontrar el archivo JSON");
         }
