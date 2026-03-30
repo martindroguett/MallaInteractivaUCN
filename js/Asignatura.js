@@ -15,4 +15,4 @@ export class Asignatura{
             this.disponible = true;
         }
     }
-}
+} //titulo corregido
